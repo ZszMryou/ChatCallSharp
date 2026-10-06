@@ -2,6 +2,13 @@
 
 ChatCallSharp 是给 Emuera ERB 使用的同步插件。所有函数通过 `CALLSHARP` 调用，输出变量必须作为最后一个参数传入。
 
+
+将bin/Debug/net8.0-windows/ChatCallSharp.dll放入".\你的era的游戏目录\plugins"即可使用
+
+本插件更多面向于想在口上或其它玩法功能上接入ai的创作者
+
+本插件附带readme（就是这个文件，，，） vibe coding时可以将本文件发送给ai
+
 ## 1. 基本规则
 
 ```erb
