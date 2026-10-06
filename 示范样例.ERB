@@ -1,0 +1,160 @@
+@ADD_CUSTOM_COM501
+
+LOCALS:0 = 0
+IF NAME:CHARA == "蕾米莉亚·斯卡蕾特"
+    LOCALS:0 = 1
+ELSEIF NAME:CHARA == "十六夜咲夜"
+    LOCALS:0 = 2
+ELSEIF NAME:CHARA == "红美铃"
+    LOCALS:0 = 3
+ELSEIF NAME:CHARA == "帕秋莉·诺蕾姬"
+    LOCALS:0 = 4
+ELSEIF NAME:CHARA == "小恶魔"
+    LOCALS:0 = 5
+ELSEIF NAME:CHARA == "琪露诺"
+    LOCALS:0 = 6
+ELSEIF NAME:CHARA == "露米娅"
+    LOCALS:0 = 7
+ELSEIF NAME:CHARA == "芙兰朵露·斯卡蕾特"
+    LOCALS:0 = 8
+ELSEIF NAME:CHARA == "大妖精"
+    LOCALS:0 = 9
+ENDIF
+
+IF LOCALS:0 == 0
+    SETCOLOR 0xFF0000
+    PRINTFORML 未找到角色“%NAME:CHARA%”对应的编号，无法聊天。
+    RESETCOLOR
+    RETURN 0
+ENDIF
+
+;这里api无key配置，因为用了本地中转工具，一个被废弃的工具，，，我不会公布它了，，，
+; 每个目标角色使用自己的聊天存档，编号来自上面的名称映射
+;这是一个废案的多角色提示词管理的工具，，我不打算公布(),属于外部提示词管理，方便破限不同的角色人设/知识库/聊天记录的管理
+CALLSHARP ModelSet("http://127.0.0.1:8765/api/characters/" + TOSTR(LOCALS:0) + "/chat", "")
+
+; 聊天前读取当前角色的存档列表
+CALLSHARP HttpGetJson("http://127.0.0.1:8765/api/characters/" + TOSTR(LOCALS:0) + "/conversations", RESULTS:4)
+CALLSHARP LastStatus(LOCALS:7)
+IF LOCALS:7 != 0
+    CALLSHARP LastError(RESULTS:3)
+    SETCOLOR 0xFF0000
+    PRINTFORML 无法读取聊天记录：%RESULTS:3%
+    RESETCOLOR
+    RETURN 0
+ENDIF
+
+CALLSHARP JsonCount(RESULTS:4, "conversations", LOCALS:8)
+CALLSHARP LastStatus(LOCALS:7)
+IF LOCALS:7 != 0
+    CALLSHARP LastError(RESULTS:3)
+    SETCOLOR 0xFF0000
+    PRINTFORML 聊天记录格式错误：%RESULTS:3%
+    RESETCOLOR
+    RETURN 0
+ENDIF
+
+SETCOLOR 0x00CCFF
+PRINTFORML 可加载的聊天记录：
+RESETCOLOR
+
+IF LOCALS:8 == 0
+    PRINTFORML （暂无已保存记录，直接输入内容将使用 main 存档）
+ELSE
+    LOCAL = 0
+    WHILE LOCAL < LOCALS:8
+        CALLSHARP JsonGet(RESULTS:4, "conversations[" + TOSTR(LOCAL) + "].conversation_id", RESULTS:5)
+        CALLSHARP JsonGetInt(RESULTS:4, "conversations[" + TOSTR(LOCAL) + "].message_count", LOCALS:10)
+        CALLSHARP JsonGet(RESULTS:4, "conversations[" + TOSTR(LOCAL) + "].updated_at", RESULTS:6)
+        LOCALS:9 = LOCAL + 1
+        PRINTFORML [%LOCALS:9%] %RESULTS:5%（消息：%LOCALS:10%，更新：%RESULTS:6%）
+        LOCAL += 1
+    WEND
+ENDIF
+
+PRINTL 请输入要加载的 conversation_id，直接回车使用 main：
+INPUTS
+IF RESULTS == ""
+    RESULTS:5 = "main"
+ELSE
+    RESULTS:5 = RESULTS
+ENDIF
+PRINTFORML 当前加载：%RESULTS:5%
+
+SETCOLOR 0x00FF00
+PRINTFORML +++决定与%CALLNAME:TARGET%夜聊天……
+PRINTFORML 输入"exit"以结束聊天
+RESETCOLOR
+
+LOCAL = 1
+WHILE LOCAL
+    IF BASE:MASTER:気力 < 5
+        SETCOLOR 0xFF0000
+        PRINTFORML （气力不足，无法继续聊天）
+        RESETCOLOR
+        LOCAL = 0
+        CONTINUE
+    ENDIF
+
+    SETCOLOR 0x00FFCC 
+    PRINTL 要说什么？
+    RESETCOLOR
+
+    INPUTS
+    
+    IF TOUPPER(RESULTS) == "EXIT"
+        LOCAL= 0
+        CONTINUE
+    ENDIF
+
+    SIF RESULTS == ""
+        CONTINUE
+
+    ; 先编码玩家输入，再构造工具要求的 JSON 请求体
+    CALLSHARP JsonEncode(RESULTS, RESULTS:2)
+    CALLSHARP JsonEncode(RESULTS:5, RESULTS:6)
+    CALLSHARP ChatJson("{\"input\":" + RESULTS:2 + ",\"conversation_id\":" + RESULTS:6 + ",\"stream\":false}", RESULTS:1)
+
+    CALLSHARP LastStatus(LOCALS:7)
+    IF LOCALS:7 != 0
+        CALLSHARP LastError(RESULTS:3)
+        SETCOLOR 0xFF0000
+        PRINTFORML AI 请求失败：%RESULTS:3%
+        RESETCOLOR
+        CONTINUE
+    ENDIF
+
+
+    SETCOLOR 0xFF0000
+    PRINTFORML %CALLNAME:TARGET% : %RESULTS:1%
+    RESETCOLOR
+
+
+    TIME += 5
+    BASE:MASTER:気力 -= 5
+WEND
+
+RETURN 1
+
+
+@ADD_CUSTOM_COM_ABLE501
+SIF BASE:MASTER:気力 <= 0       
+    RETURN 0
+SIF FLAG:70 == 1                
+    RETURN 0
+SIF CFLAG:うふふ                
+    RETURN 0
+SIF MARK:反発刻印 == 3
+    RETURN 0
+SIF TCVAR:泥酔 == 1
+    RETURN 0
+SIF CFLAG:TARGET:現在位置 != CFLAG:MASTER:現在位置
+    RETURN 0
+RETURN 1
+
+
+@ADD_CUSTOM_MESSAGE_COM501
+SETCOLOR 0x00FFFF
+PRINTFORML +++与%CALLNAME:TARGET%聊天告一段落……
+RESETCOLOR
+RETURN 1
