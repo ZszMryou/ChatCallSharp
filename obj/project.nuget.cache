@@ -1,8 +1,11 @@
 {
   "version": 2,
-  "dgSpecHash": "WNqPoTGrg/Y=",
+  "dgSpecHash": "EkQ/XVlGNL0=",
   "success": true,
-  "projectFilePath": "c:\\Users\\zszmr\\Desktop\\test\\p\\upload\\ChatCallSharp\\ChatCallSharp.csproj",
-  "expectedPackageFiles": [],
+  "projectFilePath": "C:\\Users\\zszmr\\Desktop\\test\\p\\emuera.em\\ChatCallSharp\\ChatCallSharp.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\zszmr\\.nuget\\packages\\enums.net\\4.0.2\\enums.net.4.0.2.nupkg.sha512",
+    "C:\\Users\\zszmr\\.nuget\\packages\\system.commandline\\2.0.0-beta4.22272.1\\system.commandline.2.0.0-beta4.22272.1.nupkg.sha512"
+  ],
   "logs": []
 }

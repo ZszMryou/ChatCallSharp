@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("ChatCallSharp")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+88b8da955bffbabc00f88b220f77b4e3e7f7498f")]
 [assembly: System.Reflection.AssemblyProductAttribute("ChatCallSharp")]
 [assembly: System.Reflection.AssemblyTitleAttribute("ChatCallSharp")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
